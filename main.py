@@ -11,7 +11,6 @@ from environment import EnvironmentGoogleSnake
 
 from matplotlib import pyplot as plt
 
-import cv2
 import time
 
 # from stable_baselines.common.env_checker import check_env
@@ -19,19 +18,14 @@ import time
 
 game = EnvironmentGoogleSnake()
 # check_env(game)
-game.reset()
+# game.reset()
 sleep(2)
 done = False
 
-while True:
-
-    while not done:       
-        action = game.action_space.sample()
-        next_state, reward, done, info = game.step(action)
-    else:
-        game._reset_action()
-        done = False
-
-
-   
-
+# while True:
+#     while not done:
+#         action = game.action_space.sample()
+#         next_state, reward, done, info = game.step(action)
+#     else:
+#         game._reset_action()
+#         done = False

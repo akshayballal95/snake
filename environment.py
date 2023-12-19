@@ -1,3 +1,4 @@
+from collections import deque
 import gymnasium as gym
 from gymnasium import spaces
 
@@ -18,7 +19,7 @@ import time
 
 
 class EnvironmentGoogleSnake(gym.Env):
-    def __init__(self):
+    def __init__(self, frame_stack):
         # action_space: valid actions
         # set of actions: up, down, right, left
         self.action_space = spaces.Discrete(4)
@@ -36,9 +37,13 @@ class EnvironmentGoogleSnake(gym.Env):
             Keys.LEFT,
         ]
         self._current_image = 0
+        self.wait = False
+        self.k = frame_stack
+        self.frames = deque([], max_len=self.k)
 
     def _get_image(self):
-        self.driver.implicitly_wait(2)
+        if self.wait == True:
+            self.driver.implicitly_wait(2)
         canvas = self.driver.find_element(By.CSS_SELECTOR, "canvas")
         # canvas = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR,"canvas")))
 
@@ -70,18 +75,22 @@ class EnvironmentGoogleSnake(gym.Env):
 
     def render(self):
         plt.imshow(self._get_image())
-        plt.show()      
+        plt.show()
 
     def _take_action(self, action):
         self.driver.find_element(By.TAG_NAME, "body").send_keys(self.action_map[action])
 
     def _get_reward(self):
-        if self._get_done(): return -1
+        if self._get_done():
+            return -1
         score = self._get_score()
-        if self._score - score == 0: return 0.01
-        else: return score
+        if self._score - score == 0:
+            return 0.01
+        else:
+            return score
 
     def reset(self):
+        self.wait = True
         self._score = 0
         self.done = False
         self.driver.find_element(By.TAG_NAME, "body").send_keys(Keys.SPACE)
@@ -89,7 +98,7 @@ class EnvironmentGoogleSnake(gym.Env):
         return self._get_image()
 
     def step(self, action):
-        
+        self.wait = False
         self.driver.find_element(By.TAG_NAME, "body").send_keys(self.action_map[action])
 
         done = self._get_done()
