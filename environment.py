@@ -51,8 +51,9 @@ class EnvironmentGoogleSnake(gym.Env):
             np.array(Image.open(io.BytesIO(canvas_png))), cv2.COLOR_BGR2GRAY
         )
         image = cv2.resize(image, (128, 128))
+        sub = cv2.subtract(image, self._current_image)
         self._current_image = image
-        return cv2.subtract(image, self._current_image)
+        return sub
 
     def _get_score(self):
         elem = self.driver.find_element(By.CLASS_NAME, "HIonyd")
@@ -77,14 +78,14 @@ class EnvironmentGoogleSnake(gym.Env):
     def _get_reward(self):
         if self._get_done(): return -1
         score = self._get_score()
-        if self._score - score == 0: return 0
+        if self._score - score == 0: return 0.01
         else: return score
 
     def reset(self):
         self._score = 0
         self.done = False
         self.driver.find_element(By.TAG_NAME, "body").send_keys(Keys.SPACE)
-        time.sleep(1)
+        time.sleep(0.5)
         return self._get_image()
 
     def step(self, action):
